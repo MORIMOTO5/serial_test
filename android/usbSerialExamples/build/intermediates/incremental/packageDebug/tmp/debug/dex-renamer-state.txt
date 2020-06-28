@@ -1,0 +1,4 @@
+#Wed Jun 03 21:12:33 JST 2020
+base.0=/Users/morimoto/AndroidStudioProjects/usb-serial-for-android-master/usbSerialExamples/build/intermediates/dex/debug/out/classes.dex
+path.0=classes.dex
+renamed.0=classes.dex
