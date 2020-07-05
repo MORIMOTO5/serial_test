@@ -56,9 +56,25 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   static const platform = const MethodChannel('samples.flutter.dev/battery');
 
-  String _batteryLevel = 'Unknown battery level.';
+  String _batteryLevel2 = 'Unknown battery level.';
+  String _batteryLevel3 = 'Unknown battery level.';
 
-  Future<void> _getBatteryLevel() async {
+  Future<void> _getBatteryLevel2() async {
+    String batteryLevel;
+    try {
+      //final int result = await platform.invokeMethod('getBatteryLevel');
+      final String result = await platform.invokeMethod('getBatteryLevel2');
+      batteryLevel = 'Battery level at $result % .';
+    } on PlatformException catch (e) {
+      batteryLevel = "Failed to get battery level: '${e.message}'.";
+    }
+
+    setState(() {
+      _batteryLevel2 = batteryLevel;
+    });
+  }
+
+  Future<void> _getBatteryLevel3() async {
     String batteryLevel;
     try {
       //final int result = await platform.invokeMethod('getBatteryLevel');
@@ -69,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     setState(() {
-      _batteryLevel = batteryLevel;
+      _batteryLevel3 = batteryLevel;
     });
   }
 
@@ -129,12 +145,20 @@ class _MyHomePageState extends State<MyHomePage> {
               style: Theme.of(context).textTheme.headline4,
             ),
             Text(
-              '$_batteryLevel',
+              '$_batteryLevel2',
               style: Theme.of(context).textTheme.headline4,
             ),
             RaisedButton(
-              child: Text('$_batteryLevel'),
-              onPressed: _getBatteryLevel,
+              child: Text('$_batteryLevel2'),
+              onPressed: _getBatteryLevel2,
+            ),
+            Text(
+              '$_batteryLevel3',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+            RaisedButton(
+              child: Text('$_batteryLevel3'),
+              onPressed: _getBatteryLevel3,
             ),
           ],
         ),

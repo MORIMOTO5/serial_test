@@ -36,8 +36,8 @@ private enum class UsbPermission {
 }
 
 private const val INTENT_ACTION_GRANT_USB = BuildConfig.APPLICATION_ID + ".GRANT_USB"
-private const val WRITE_WAIT_MILLIS = 2000
-private const val READ_WAIT_MILLIS = 2000
+private const val WRITE_WAIT_MILLIS = 3000
+private const val READ_WAIT_MILLIS = 3000
 
 class MainActivity: FlutterActivity() {
 
@@ -47,7 +47,7 @@ class MainActivity: FlutterActivity() {
 
     private val deviceId = 0
     private  var portNum:Int = 0
-    private  var baudRate:Int = 115200
+    private  var baudRate:Int = 1200
     private val withIoManager = false
 
     private var usbIoManager: SerialInputOutputManager? = null
@@ -55,6 +55,7 @@ class MainActivity: FlutterActivity() {
     private var usbPermission = UsbPermission.Unknown
     private var connected = false
 
+    private var port_status:String = "non";
     private var current_status:Int = 0;
     private var current_status2:String = "no";
 
@@ -128,7 +129,7 @@ class MainActivity: FlutterActivity() {
 
     private fun getBatteryLevel2(): String {
         var batteryLevel: String
-        batteryLevel = "0"
+        batteryLevel = ""
 
         connect()
         send("000000")
@@ -149,7 +150,7 @@ class MainActivity: FlutterActivity() {
 
     private fun getBatteryLevel3(): String {
         var batteryLevel: String
-        batteryLevel = "0"
+        batteryLevel = ""
 
         connect()
         var received_data: ByteArray = byteArrayOf()
@@ -157,20 +158,22 @@ class MainActivity: FlutterActivity() {
 
         if(connected)
         {
-            //batteryLevel = "62"
-            //receive(received_data)
-            //batteryLevel = received_data.toString()
-            send("000000")
+            //send("000000")
 
             val buffer = ByteArray(8192)
             val len: Int = usbSerialPort!!.read(buffer, READ_WAIT_MILLIS)
             receive(Arrays.copyOf(buffer, len))
 
-            batteryLevel = buffer[0].toString()
+            //batteryLevel = buffer.size.toString()
+            for ((index, value) in buffer.withIndex()) {
+                if(index > 0 && index < 30) {
+                    batteryLevel += buffer[index].toString() + ','
+                }
+            }
         }
         else
         {
-            batteryLevel = "1"
+            batteryLevel = "2"
         }
 
         //batteryLevel = current_status2
@@ -229,7 +232,7 @@ class MainActivity: FlutterActivity() {
             current_status = 9
             usbSerialPort?.open(usbConnection)
             current_status = 10
-            usbSerialPort?.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_NONE)
+            usbSerialPort?.setParameters(baudRate, 8, UsbSerialPort.STOPBITS_1, UsbSerialPort.PARITY_ODD)
             current_status = 11
             if (withIoManager) {
                 current_status = 12
@@ -284,11 +287,23 @@ class MainActivity: FlutterActivity() {
             //var data2 = byteArrayOf(64, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0)
             //var data2 = byteArrayOf(64, 1, 3, 0, 0, 0, 11, 0, 1, 0, 0, 0, 1, 0, 0)
             //var data2 = byteArrayOf(64, 1, 200.toByte(), 0, 0, 0, 1, 0, 1, 0, 0, 0, 10, 0, 255.toByte(), 255.toByte(), 255.toByte(), 255.toByte(), 255.toByte(), 2, 0, 0, 0, 2)
-            var data2 = byteArrayOf(64, 1);
-                    //var data2 = byteArrayOf(48, 48, 48, 48)
+            //var data2 = byteArrayOf(64, 255).toUByte();
+            var data2 = byteArrayOf(0x40.toByte(), 0x01.toByte(), 0xc8.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x13.toByte(), 0x00.toByte(), 0x01.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x0a.toByte(), 0x00.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0xff.toByte(), 0x02.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x02.toByte())
+            //var data2 = byteArrayOf(0x40.toByte(), 0x01.toByte(), 0x01.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x01.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte(), 0x00.toByte())
+            //var data2 = byteArrayOf(0x40.toByte(), 0x00000001, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000001, 0x00000000, 0x00000000, 0x00000000, 0x00000000, 0x00000000)
+            /*
+            val ints = intArrayOf(30, 40, 255, 30, 255, 40)
+            var data2 = ByteArray(ints.size)
+            for (i in data2.indices) {
+                val a = Integer.toHexString(ints[i])
+                
+                data2[i] = (a).toByte()
+            }
+            */
+            //val data2 = ints.foldIndexed(ByteArray(ints.size)) { i, a, v -> a.apply { set(i, v.toByte()) } }
             current_status2 = "65"
             usbSerialPort?.write(data2, WRITE_WAIT_MILLIS)
-            current_status2 = "66"
+            current_status2 = portNum.toString()
         } catch (e: java.lang.Exception) {
             //onRunError(e)
             current_status2 = "67"
