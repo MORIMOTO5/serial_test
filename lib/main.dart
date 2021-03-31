@@ -56,8 +56,8 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
   static const platform = const MethodChannel('samples.flutter.dev/battery');
 
-  String _batteryLevel2 = 'Unknown battery level.';
-  String _batteryLevel3 = 'Unknown battery level.';
+  String _batteryLevel2 = 'Unknown battery level!';
+  String _batteryLevel3 = 'Unknown battery level!';
 
   Future<void> _getBatteryLevel2() async {
     String batteryLevel;
